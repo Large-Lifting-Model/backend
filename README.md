@@ -118,10 +118,10 @@ backend [root]
 ## Miscellaneous Notes
 1. Django admin panel access
     > python manage.py makesuperuser
-    - Input email/username/password
+- Input email/username/password
 2. Apply migrations after each change/pull is made
     > python manage.py makemigrations
+
     > python manage.py migrate
 3. Make sure to git pull and fix any conflicts before committing to your branch, then
     create a pull request and ask someone to review your changes
-    - NEVER DIRECLY PUSH TO MAIN
