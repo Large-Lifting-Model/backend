@@ -1,0 +1,47 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+virtualenv/
+
+# Django stuff:
+*.log
+*.pot
+*.pyc
+db.sqlite3
+media/
+staticfiles/
+
+# If you're using PostgreSQL, ignore the .env files where database credentials may be stored
+.env
+
+# macOS
+.DS_Store
+
+# VS Code settings
+.vscode/
+
+# IDEs
+.idea/
+
+# Ignore common virtual environment folders
+venv/
+env/
+virtualenv/
+
+# Ignore configuration files
+config/config.ini
+
+# Ignore migration files
+migrations/
