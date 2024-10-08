@@ -18,7 +18,10 @@ from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('workout/', include('workout.urls'))
+    path('api/workout/', include('workout.urls')),
+    path('api/users/', include('users.urls')),
+    path('api/llm/', include('llm.urls')),
 ]

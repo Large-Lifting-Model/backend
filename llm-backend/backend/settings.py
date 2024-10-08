@@ -32,18 +32,24 @@ DEBUG = config['Django'].getboolean('DEBUG')
 ALLOWED_HOSTS = config['Django']['ALLOWED_HOSTS'].split(',')
 CORS_ALLOW_ALL_ORIGINS = config['Django'].getboolean('CORS_ALLOW_ALL_ORIGINS')
 
-
+SITE_ID = 1
 
 # Application definition
 
 INSTALLED_APPS = [
+    # Project apps
     'workout',
+    'users',
+    'llm',
+    # Default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+
 ]
 
 MIDDLEWARE = [
