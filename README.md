@@ -44,7 +44,7 @@ Please follow this guide to setup your own Django backend server
 
 
 ### PostgreSQL Database Setup and Configuration
-1. Install PostgreSQL along pgAgent (using Stack Builder),
+1. Install PostgreSQL along pgAdmin (using Stack Builder),
 2. Login in the SQL Shell as superuser (psql) [[1]](https://docs.djangoproject.com/en/4.2/ref/databases/#optimizing-postgresql-s-configuration) [[2]](https://djangocentral.com/using-postgresql-with-django/) and then run the following:
     ```sql
     CREATE DATABASE llm_db;
@@ -105,12 +105,27 @@ backend [root]
 │   └── config.ini
 ├── llm-backend
 │   ├── backend
-│   ├── workout
-│   └── manage.py
-├── virtualenv [ignored in git]
-├── .gitignore
-├── README.md
-└── requirements.txt
+│   │   ├── config                     # Project configuration (settings, URLs)
+│   │   │   ├── settings.py            # Django settings
+│   │   │   └── urls.py                # Main URL routing
+│   │   ├── users                      # User-related operations
+│   │   │   ├── models.py             
+│   │   │   ├── serializers.py         
+│   │   │   ├── views.py               
+│   │   │   └── urls.py                
+│   │   ├── workout                    
+│   │   │   ├── models.py              
+│   │   │   ├── serializers.py         
+│   │   │   ├── views.py               
+│   │   │   └── urls.py                
+│   │   ├── llm                        
+│   │   │   ├── views.py               
+│   │   │   └── urls.py                
+│   └── manage.py                      # Django entry point
+├── virtualenv [ignored in git]        # Virtual environment (ignored in version control)
+├── .gitignore                         # Files and folders to ignore in version control
+├── README.md                          # Project documentation
+└── requirements.txt                   # Python dependencies (Django, DRF, etc.)
 ```
 
 
@@ -124,4 +139,4 @@ backend [root]
 
     > python manage.py migrate
 3. Make sure to git pull and fix any conflicts before committing to your branch, then
-    create a pull request and ask someone to review your changes
+    create a pull request and ask someone to review your changes.

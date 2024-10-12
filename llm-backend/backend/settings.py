@@ -32,18 +32,54 @@ DEBUG = config['Django'].getboolean('DEBUG')
 ALLOWED_HOSTS = config['Django']['ALLOWED_HOSTS'].split(',')
 CORS_ALLOW_ALL_ORIGINS = config['Django'].getboolean('CORS_ALLOW_ALL_ORIGINS')
 
-
+SITE_ID = 1
 
 # Application definition
 
 INSTALLED_APPS = [
+    
+    # Project apps
     'workout',
+    'users',
+    'llm',
+
+    # Default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+
+    # Auth apps
+    'allauth',                                   # Allauth core
+    'allauth.account',                           # Email/password authentication
+    'allauth.socialaccount',                     # Social account handling
+    'allauth.socialaccount.providers.google',    # Google provider
+    'allauth.socialaccount.providers.facebook',  # Facebook provider
+    'allauth.socialaccount.providers.twitter',   # Twitter provider
+
+    # REST
+    'rest_framework',
+    'rest_framework.authtoken',
+    'dj_rest_auth',
+    'dj_rest_auth.registration',        
+
+
+]
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'offline'},
+        'CLIENT_ID': '<google-client-id>',
+        'SECRET': '<google-client-secret>',
+    }
+}
+AUTHENTICATION_BACKENDS = [
+    'allauth.account.auth_backends.AuthenticationBackend',  # django-allauth backend
+    'django.contrib.auth.backends.ModelBackend',  # Default Django auth
 ]
 
 MIDDLEWARE = [
@@ -54,6 +90,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'

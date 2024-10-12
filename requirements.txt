@@ -1,3 +1,6 @@
+# MAKE SURE PYTHON VERSION IS 3.9
+
+# [CORE]
 asgiref==3.8.1
 # backports.zoneinfo==0.2.1
 Django==4.2.16
@@ -5,3 +8,18 @@ sqlparse==0.5.1
 typing-extensions==4.12.2
 
 psycopg[binary]
+
+# [REST]
+djangorestframework
+
+
+# [DEV]
+setuptools==59.6.0
+
+# [AUTH]
+django-allauth                  # Handles user authentication, including social auth
+dj-rest-auth                    # Provides authentication for Django Rest Framework (including social auth)
+djangorestframework-simplejwt   # JWT (JSON Web Token) authentication for APIs
+requests                        # HTTP library needed by django-allauth and social providers
+cryptography                    # Required by django-allauth for JWT handling and other cryptographic operationspi
+requests_oauthlib               # Required by django-allauth for OAuth handling 
