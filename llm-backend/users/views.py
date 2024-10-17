@@ -66,7 +66,9 @@ class GoogleLoginView(SocialLoginView):
                 email=email,
                 first_name=google_user_data.get('given_name'),
                 last_name=google_user_data.get('family_name'),
-                password=None  # No password needed since we are using social login
+
+                password=None  # No password needed since we are using social login (Google
+
             )
             # Create a profile for the new user, checking if it already exists to avoid duplicate issues
             UserProfile.objects.get_or_create(user=user)
