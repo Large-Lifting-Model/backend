@@ -13,7 +13,7 @@ Please follow this guide to setup your own Django backend server
     - Django
         - Django REST Framework
         - Authentication options:
-            - [django-rest-knox](https://jazzband.github.io/django-rest-knox/)
+            - [django-allauth](https://docs.allauth.org/en/dev/)
             - [dj-rest-auth](https://dj-rest-auth.readthedocs.io/en/latest/)
         
 
@@ -35,7 +35,7 @@ Please follow this guide to setup your own Django backend server
 # Local Environment Setup
 ### Django Project Setup
 1. Clone this repository
-2. Create a virtual environment
+2. Create a virtual environment using Python 3.9
     > python -m venv .venv
 3. Activate the virtual environment (Windows PowerShell)
     > .venv\Scripts\activate
@@ -81,6 +81,17 @@ Please follow this guide to setup your own Django backend server
         USER = userdb
         PASSWORD = largeliftingmodel
         ```
+5. Use or copy the .env/.env example file to create a file to hold environment variables in the same folder of /config. Setting this up will allow us to have a environment variable file.
+    - .env:
+    ```
+    GOOGLE_OAUTH_CLIENT_ID= 
+    GOOGLE_OAUTH_CLIENT_SECRET= 
+    GOOGLE_OAUTH_CALLBACK_URL= http://127.0.0.1:8000/users/auth/google/callback/
+
+    FACEBOOK_OAUTH_CLIENT_ID = 
+    FACEBOOK_OAUTH_CLIENT_SECRET =
+    FACEBOOK_OAUTH_CALLBACK_URL = http://127.0.0.1:8000/users/auth/facebook/callback/
+    ```
 
 ### Django Project Setup Continued
 1. Migration
