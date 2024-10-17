@@ -19,7 +19,7 @@ urlpatterns = [
     # Logout (JWT-specific logout endpoint)
     path('auth/logout/', UserLogoutView.as_view(), name='auth_logout'),  # Custom JWT logout
 
-    # JWT token actions
-    path('auth/token/', TokenObtainPairView.as_view(), name='auth_token_obtain'),  # Obtain JWT tokens
+    # JWT token actions (obtain and refresh)
+    # path('auth/token/', TokenObtainPairView.as_view(), name='auth_token_obtain'),  # Obtain JWT tokens
     path('auth/token/refresh/', TokenRefreshView.as_view(), name='auth_token_refresh'),  # Refresh tokens
 ]
