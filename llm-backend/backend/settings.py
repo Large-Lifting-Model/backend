@@ -114,6 +114,7 @@ SOCIALACCOUNT_PROVIDERS = {
             # "client_id": FACEBOOK_OAUTH_CLIENT_ID,
             # "secret": FACEBOOK_OAUTH_CLIENT_SECRET,
 
+
             'key': '',
         },
         'VERIFIED_EMAIL': True,
