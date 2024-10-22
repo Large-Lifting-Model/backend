@@ -1,26 +1,32 @@
 from django.db import models
 
+# Workout model parameter choices
+
 DIFFICULTYS = [('Easy', 'Easy'), ('Medium', 'Medium'), ('Hard', 'Hard')]
 
 WORKOUTS = [('Weights', 'Weights'), ('Cardio', 'Cardio'), ('Circuits', 'Circuits'), 
             ('Crossfit', 'Crossfit'), ('Yoga', 'Yoga'), ('Other', 'Other') ]
 
-TARGET_AREAS = [('Chest', 'Chest'), ('Back', 'Back'), ('Arms', 'Arms'), ('Legs', 'Legs'), ('Core', 'Core'), ('Other', 'Other')]
+TARGET_AREAS = [('Chest', 'Chest'), ('Back', 'Back'), ('Arms', 'Arms'), ('Legs', 'Legs'), 
+                ('Core', 'Core'), ('Other', 'Other')]
 
-EQUIPMENT = [('Full Gym', 'Full Gym'), ('Limited Gym', 'Limited Gym'), ('Dumbells', 'Dumbells'), ('Nothing', 'Nothing'), ('Other', 'Other')]
+EQUIPMENT = [('Full Gym', 'Full Gym'), ('Limited Gym', 'Limited Gym'), ('Dumbells', 'Dumbells'), 
+             ('Nothing', 'Nothing'), ('Other', 'Other')]
 
 class Workout(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    length = models.IntegerField()
-    difficulty = models.CharField(choices=DIFFICULTYS, max_length=100)
-    workout_type = models.CharField(choices=WORKOUTS, max_length=100)
-    target_area = models.CharField(choices=TARGET_AREAS, max_length=100)
-    included_exercises = models.TextField()
-    excluded_exercises = models.TextField()
-    equipment_access = models.CharField(choices=EQUIPMENT, max_length=100)
-    other_considerations = models.TextField()
+    # Required fields
+    created = models.DateTimeField('Date Created', auto_now_add=True, blank=False, null=False)
+    length = models.IntegerField('Length of Workout', blank=False, null=False)
+    difficulty = models.CharField('Difficulty', choices=DIFFICULTYS, max_length=100, blank=False, null=False)
+    workout_type = models.CharField('Workout Type', choices=WORKOUTS, max_length=100, blank=False, null=False)
+    target_area = models.CharField('Target Area', choices=TARGET_AREAS, max_length=100, blank=False, null=False)
+    equipment_access = models.CharField('Equipment Access', choices=EQUIPMENT, max_length=100, blank=False, null=False)
+    # Optional fields
+    included_exercises = models.TextField('Included Exercises', blank=True, null=True)
+    excluded_exercises = models.TextField('Excluded Exercises', blank=True, null=True)
+    other_considerations = models.TextField('Other Considerations', blank=True, null=True)
 
-    # user = models.ForeignKey('users.User', on_delete=models.CASCADE) # This is a placeholder for the user model that will be created later
+    # Need add LLM attribute as a foreign key
     
 
     def __str__(self):
