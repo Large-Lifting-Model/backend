@@ -8,6 +8,7 @@ class Workout(models.Model):
     date = models.DateField()
     duration = models.IntegerField()
     calories = models.IntegerField()
+    time = models.TimeField()
 
     # user = models.ForeignKey('users.User', on_delete=models.CASCADE) # This is a placeholder for the user model that will be created later
     

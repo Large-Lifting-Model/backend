@@ -1,3 +1,11 @@
 from django.db import models
 
-# Create your models here.
+class LLMModel(models.Model):
+    workout_text = models.TextField()
+
+#####################
+#### FOR TESTING ####
+class LLMPrompt(models.Model):
+    prompt_text = models.TextField()
+
+
