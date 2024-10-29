@@ -14,5 +14,5 @@ class WorkoutSerializer(serializers.ModelSerializer):
                   'included_exercises', 
                   'excluded_exercises',
                   'other_considerations'
-                  # placeholder for LLM attribute
+                  # placeholder for LLM attribute?
                   ]
