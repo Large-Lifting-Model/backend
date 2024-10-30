@@ -17,3 +17,9 @@ class CreateWorkoutView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class WorkoutView(APIView):
+    def get(self, request):
+        workouts = Workout.objects.all()
+        serializer = WorkoutSerializer(workouts, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
