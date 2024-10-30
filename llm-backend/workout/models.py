@@ -14,6 +14,8 @@ EQUIPMENT = [('Full Gym', 'Full Gym'), ('Limited Gym', 'Limited Gym'), ('Dumbell
              ('Nothing', 'Nothing'), ('Other', 'Other')]
 
 class Workout(models.Model):
+    # user as foreign key
+
     # Required fields
     created = models.DateTimeField('Date Created', auto_now_add=True, blank=False, null=False)
     length = models.IntegerField('Length of Workout', blank=False, null=False)
@@ -21,13 +23,13 @@ class Workout(models.Model):
     workout_type = models.CharField('Workout Type', choices=WORKOUTS, max_length=100, blank=False, null=False)
     target_area = models.CharField('Target Area', choices=TARGET_AREAS, max_length=100, blank=False, null=False)
     equipment_access = models.CharField('Equipment Access', choices=EQUIPMENT, max_length=100, blank=False, null=False)
+    # llm text field
     # Optional fields
     included_exercises = models.TextField('Included Exercises', blank=True, null=True)
     excluded_exercises = models.TextField('Excluded Exercises', blank=True, null=True)
     other_considerations = models.TextField('Other Considerations', blank=True, null=True)
-
-    # Need add LLM attribute as a foreign key
-    
+    # llm feedback
+    # extra columns for others options?    
 
     def __str__(self):
         return self.name
