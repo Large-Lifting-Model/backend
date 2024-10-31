@@ -90,47 +90,47 @@ class GoogleLoginView(SocialLoginView):
             headers={'Authorization': f'Bearer {access_token}'}
         )
         return response.json()
-class FacebookLoginView(SocialLoginView):
-    adapter_class = FacebookOAuth2Adapter
-    callback_url = settings.FACEBOOK_OAUTH_CALLBACK_URL
-    client_class = OAuth2Client
+# class FacebookLoginView(SocialLoginView):
+#     adapter_class = FacebookOAuth2Adapter
+#     callback_url = settings.FACEBOOK_OAUTH_CALLBACK_URL
+#     client_class = OAuth2Client
 
-    def post(self, request, *args, **kwargs):
-        access_token = request.data.get("access_token")
-        if not access_token:
-            return Response({"error": "Missing access token."}, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request, *args, **kwargs):
+#         access_token = request.data.get("access_token")
+#         if not access_token:
+#             return Response({"error": "Missing access token."}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            # Extract user info from Facebook
-            user_info = self.get_facebook_user_info(access_token)
-            email = user_info.get('email')
-            if not email:
-                return Response({"error": "Facebook account does not have an email."}, status=status.HTTP_400_BAD_REQUEST)
+#         try:
+#             # Extract user info from Facebook
+#             user_info = self.get_facebook_user_info(access_token)
+#             email = user_info.get('email')
+#             if not email:
+#                 return Response({"error": "Facebook account does not have an email."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Check if a user with the same email exists
-            try:
-                user = User.objects.get(email=email)
+#             # Check if a user with the same email exists
+#             try:
+#                 user = User.objects.get(email=email)
 
-                # Check if the user is already linked to Facebook
-                if SocialAccount.objects.filter(user=user, provider='facebook').exists():
-                    return Response({"error": "User is already registered with this email and linked to Facebook."}, status=status.HTTP_400_BAD_REQUEST)
+#                 # Check if the user is already linked to Facebook
+#                 if SocialAccount.objects.filter(user=user, provider='facebook').exists():
+#                     return Response({"error": "User is already registered with this email and linked to Facebook."}, status=status.HTTP_400_BAD_REQUEST)
 
-                # If not linked, link the Facebook account to the existing user
-                perform_login(request, user, email_verification='none')
-                return Response({"detail": "Account linked successfully."}, status=status.HTTP_200_OK)
+#                 # If not linked, link the Facebook account to the existing user
+#                 perform_login(request, user, email_verification='none')
+#                 return Response({"detail": "Account linked successfully."}, status=status.HTTP_200_OK)
 
-            except ObjectDoesNotExist:
-                # No existing user, proceed with normal flow (create user)
-                return super().post(request, *args, **kwargs)
+#             except ObjectDoesNotExist:
+#                 # No existing user, proceed with normal flow (create user)
+#                 return super().post(request, *args, **kwargs)
 
-        except Exception as e:
-            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+#         except Exception as e:
+#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    def get_facebook_user_info(self, access_token):
-        response = requests.get(
-            f'https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token={access_token}'
-        )
-        return response.json()
+#     def get_facebook_user_info(self, access_token):
+#         response = requests.get(
+#             f'https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token={access_token}'
+#         )
+#         return response.json()
 
 
 class UserProfileView(APIView):
