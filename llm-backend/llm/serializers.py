@@ -1,10 +1,10 @@
 from rest_framework import serializers
 
 #Local imports
-from .models import LLMPrompt
+from .models import LlmPrompt
 
-class LLMSerializer(serializers.ModelSerializer):
+class LlmSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LLMPrompt
+        model = LlmPrompt
         fields = ['id', 'prompt_text', 'response_text']
 
