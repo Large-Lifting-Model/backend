@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 
 load_dotenv("./config/.env")
 
+
 config = ConfigParser()
 config.read('../config/config.ini')
 
@@ -39,13 +40,10 @@ CORS_ALLOW_ALL_ORIGINS = config['Django'].getboolean('CORS_ALLOW_ALL_ORIGINS')
 SITE_ID = 1
 
 # Google OAuth
-GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
-GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
-GOOGLE_OAUTH_CALLBACK_URL = os.getenv("GOOGLE_OAUTH_CALLBACK_URL")
+GOOGLE_OAUTH_CLIENT_ID = config['GoogleOAuth']['CLIENT_ID']
+GOOGLE_OAUTH_CLIENT_SECRET = config['GoogleOAuth']['CLIENT_SECRET']
+GOOGLE_OAUTH_CALLBACK_URL = config['GoogleOAuth']['REDIRECT_URI']
 
-FACEBOOK_OAUTH_CLIENT_ID = os.getenv("FACEBOOK_OAUTH_CLIENT_ID")
-FACEBOOK_OAUTH_CLIENT_SECRET = os.getenv("FACEBOOK_OAUTH_CLIENT_SECRET")
-FACEBOOK_OAUTH_CALLBACK_URL = os.getenv("FACEBOOK_OAUTH_CALLBACK_URL")
 
 # Application definition
 
@@ -113,8 +111,6 @@ SOCIALACCOUNT_PROVIDERS = {
         'APP': {
             # "client_id": FACEBOOK_OAUTH_CLIENT_ID,
             # "secret": FACEBOOK_OAUTH_CLIENT_SECRET,
-
-
             'key': '',
         },
         'VERIFIED_EMAIL': True,
