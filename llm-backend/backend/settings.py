@@ -9,9 +9,13 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
+from datetime import timedelta
 from pathlib import Path
 from configparser import ConfigParser
+from dotenv import load_dotenv
+
+load_dotenv("./config/.env")
 
 config = ConfigParser()
 config.read('../config/config.ini')
@@ -33,6 +37,15 @@ ALLOWED_HOSTS = config['Django']['ALLOWED_HOSTS'].split(',')
 CORS_ALLOW_ALL_ORIGINS = config['Django'].getboolean('CORS_ALLOW_ALL_ORIGINS')
 
 SITE_ID = 1
+
+# Google OAuth
+GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
+GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
+GOOGLE_OAUTH_CALLBACK_URL = os.getenv("GOOGLE_OAUTH_CALLBACK_URL")
+
+FACEBOOK_OAUTH_CLIENT_ID = os.getenv("FACEBOOK_OAUTH_CLIENT_ID")
+FACEBOOK_OAUTH_CLIENT_SECRET = os.getenv("FACEBOOK_OAUTH_CLIENT_SECRET")
+FACEBOOK_OAUTH_CALLBACK_URL = os.getenv("FACEBOOK_OAUTH_CALLBACK_URL")
 
 # Application definition
 
@@ -59,28 +72,96 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',    # Google provider
     'allauth.socialaccount.providers.facebook',  # Facebook provider
     'allauth.socialaccount.providers.twitter',   # Twitter provider
+    'rest_framework_simplejwt.token_blacklist',  # For handling token blacklist on logout
+
 
     # REST
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
-    'dj_rest_auth.registration',        
+    'dj_rest_auth.registration',   
+     
 
 
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'offline'},
-        'CLIENT_ID': '<google-client-id>',
-        'SECRET': '<google-client-secret>',
+    "google": {
+        "APPS": [
+            {
+                "client_id": GOOGLE_OAUTH_CLIENT_ID,
+                "secret": GOOGLE_OAUTH_CLIENT_SECRET,
+                "key": "",
+            },
+        ],
+        "SCOPE": ["profile", "email"],
+        "AUTH_PARAMS": {
+            "access_type": "online",
+        },
+    },
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        'FIELDS': [
+            'id',
+            'email',
+            'first_name',
+            'last_name',
+            'name',
+        ],
+        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+        'APP': {
+            # "client_id": FACEBOOK_OAUTH_CLIENT_ID,
+            # "secret": FACEBOOK_OAUTH_CLIENT_SECRET,
+
+
+            'key': '',
+        },
+        'VERIFIED_EMAIL': True,
+        'VERSION': 'v11.0',  # Use the appropriate Facebook Graph API version
     }
 }
+
+
+# REST Framework settings
+REST_USE_JWT = True  # Enable to use JWT tokens for authentication
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+# Simple JWT Settings
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,  # Enables rotation
+    'BLACKLIST_AFTER_ROTATION': True,  # Ensures that the old token is blacklisted after rotation
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', 'rest_framework_simplejwt.tokens.RefreshToken'),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'JTI_CLAIM': 'jti',
+}
+
+# Allauth settings for email authentication and social login
+ACCOUNT_AUTHENTICATION_METHOD = "email"  # Use Email / Password authentication
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "none" # Do not require email confirmation
+
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+
+
+
 AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',  # django-allauth backend
     'django.contrib.auth.backends.ModelBackend',  # Default Django auth
 ]
+CSRF_USE_SESSIONS = False
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
