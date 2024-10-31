@@ -67,6 +67,7 @@ class GoogleLoginView(SocialLoginView):
                 first_name=google_user_data.get('given_name'),
                 last_name=google_user_data.get('family_name'),
                 password=None  # No password needed since we are using social login (Google
+
             )
             # Create a profile for the new user, checking if it already exists to avoid duplicate issues
             UserProfile.objects.get_or_create(user=user)
@@ -90,6 +91,7 @@ class GoogleLoginView(SocialLoginView):
             headers={'Authorization': f'Bearer {access_token}'}
         )
         return response.json()
+      
 # class FacebookLoginView(SocialLoginView):
 #     adapter_class = FacebookOAuth2Adapter
 #     callback_url = settings.FACEBOOK_OAUTH_CALLBACK_URL
@@ -131,6 +133,7 @@ class GoogleLoginView(SocialLoginView):
 #             f'https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token={access_token}'
 #         )
 #         return response.json()
+
 
 
 class UserProfileView(APIView):

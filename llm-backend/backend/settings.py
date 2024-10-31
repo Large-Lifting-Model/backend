@@ -13,6 +13,9 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from configparser import ConfigParser
+from dotenv import load_dotenv
+
+load_dotenv("./config/.env")
 
 
 config = ConfigParser()
@@ -40,9 +43,6 @@ SITE_ID = 1
 GOOGLE_OAUTH_CLIENT_ID = config['GoogleOAuth']['CLIENT_ID']
 GOOGLE_OAUTH_CLIENT_SECRET = config['GoogleOAuth']['CLIENT_SECRET']
 GOOGLE_OAUTH_CALLBACK_URL = config['GoogleOAuth']['REDIRECT_URI']
-
-
-
 
 
 # Application definition
@@ -111,7 +111,6 @@ SOCIALACCOUNT_PROVIDERS = {
         'APP': {
             # "client_id": FACEBOOK_OAUTH_CLIENT_ID,
             # "secret": FACEBOOK_OAUTH_CLIENT_SECRET,
-
             'key': '',
         },
         'VERIFIED_EMAIL': True,
