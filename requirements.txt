@@ -15,10 +15,12 @@ djangorestframework
 
 # [DEV]
 setuptools==59.6.0
+python-dotenv==1.0.1  # Load environment variables from .env file
+
 
 # [AUTH]
 django-allauth                  # Handles user authentication, including social auth
-dj-rest-auth                    # Provides authentication for Django Rest Framework (including social auth)
+dj-rest-auth[with_social]==6.0.0       # REST API authentication utils
 djangorestframework-simplejwt   # JWT (JSON Web Token) authentication for APIs
 requests                        # HTTP library needed by django-allauth and social providers
 cryptography                    # Required by django-allauth for JWT handling and other cryptographic operationspi
