@@ -17,6 +17,7 @@ from dotenv import load_dotenv
 
 load_dotenv("./config/.env")
 
+
 config = ConfigParser()
 config.read('../config/config.ini')
 
@@ -36,16 +37,16 @@ DEBUG = config['Django'].getboolean('DEBUG')
 ALLOWED_HOSTS = config['Django']['ALLOWED_HOSTS'].split(',')
 CORS_ALLOW_ALL_ORIGINS = config['Django'].getboolean('CORS_ALLOW_ALL_ORIGINS')
 
+API_KEY = config['LLM']['API_KEY']
+MODEL_VERSION = config['LLM']['MODEL_VERSION']
+
 SITE_ID = 1
 
 # Google OAuth
-GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID")
-GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET")
-GOOGLE_OAUTH_CALLBACK_URL = os.getenv("GOOGLE_OAUTH_CALLBACK_URL")
+GOOGLE_OAUTH_CLIENT_ID = config['Google']['CLIENT_ID']
+GOOGLE_OAUTH_CLIENT_SECRET = config['Google']['CLIENT_SECRET']
+GOOGLE_OAUTH_CALLBACK_URL = config['Google']['REDIRECT_URI']
 
-FACEBOOK_OAUTH_CLIENT_ID = os.getenv("FACEBOOK_OAUTH_CLIENT_ID")
-FACEBOOK_OAUTH_CLIENT_SECRET = os.getenv("FACEBOOK_OAUTH_CLIENT_SECRET")
-FACEBOOK_OAUTH_CALLBACK_URL = os.getenv("FACEBOOK_OAUTH_CALLBACK_URL")
 
 # Application definition
 
@@ -99,27 +100,7 @@ SOCIALACCOUNT_PROVIDERS = {
             "access_type": "online",
         },
     },
-    'facebook': {
-        'METHOD': 'oauth2',
-        'SCOPE': ['email', 'public_profile'],
-        'FIELDS': [
-            'id',
-            'email',
-            'first_name',
-            'last_name',
-            'name',
-        ],
-        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-        'APP': {
-            # "client_id": FACEBOOK_OAUTH_CLIENT_ID,
-            # "secret": FACEBOOK_OAUTH_CLIENT_SECRET,
 
-
-            'key': '',
-        },
-        'VERIFIED_EMAIL': True,
-        'VERSION': 'v11.0',  # Use the appropriate Facebook Graph API version
-    }
 }
 
 

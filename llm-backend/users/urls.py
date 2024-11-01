@@ -1,17 +1,12 @@
 from django.urls import path, include
-from .views import GoogleLoginView, UserProfileView, UserLogoutView, FacebookLoginView
+from .views import GoogleLoginView, UserProfileView, UserLogoutView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
-    # Authentication and registration
-    # path('auth/', include('dj_rest_auth.urls')),  # Login, Logout, Password Reset
-    # path('auth/registration/', include('dj_rest_auth.registration.urls')),  # User registration
 
     # Social authentication
     path('auth/social/', include('allauth.socialaccount.urls')),  # Social login/registration
     path('auth/google/', GoogleLoginView.as_view(), name='auth_social_google'),  # Google login
-    # path('auth/facebook/', FacebookLoginView.as_view(), name='facebook_login'),
-
 
     # User profile actions
     path('profile/', UserProfileView.as_view(), name='user_profile'),  # Get, update, or delete user profile

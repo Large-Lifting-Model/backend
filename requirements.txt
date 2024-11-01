@@ -25,3 +25,4 @@ djangorestframework-simplejwt   # JWT (JSON Web Token) authentication for APIs
 requests                        # HTTP library needed by django-allauth and social providers
 cryptography                    # Required by django-allauth for JWT handling and other cryptographic operationspi
 requests_oauthlib               # Required by django-allauth for OAuth handling 
+
