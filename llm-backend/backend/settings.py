@@ -37,9 +37,9 @@ CORS_ALLOW_ALL_ORIGINS = config['Django'].getboolean('CORS_ALLOW_ALL_ORIGINS')
 SITE_ID = 1
 
 # Google OAuth
-GOOGLE_OAUTH_CLIENT_ID = config['GoogleOAuth']['CLIENT_ID']
-GOOGLE_OAUTH_CLIENT_SECRET = config['GoogleOAuth']['CLIENT_SECRET']
-GOOGLE_OAUTH_CALLBACK_URL = config['GoogleOAuth']['REDIRECT_URI']
+GOOGLE_OAUTH_CLIENT_ID = config['Google']['CLIENT_ID']
+GOOGLE_OAUTH_CLIENT_SECRET = config['Google']['CLIENT_SECRET']
+GOOGLE_OAUTH_CALLBACK_URL = config['Google']['REDIRECT_URI']
 
 
 
@@ -97,26 +97,26 @@ SOCIALACCOUNT_PROVIDERS = {
             "access_type": "online",
         },
     },
-    'facebook': {
-        'METHOD': 'oauth2',
-        'SCOPE': ['email', 'public_profile'],
-        'FIELDS': [
-            'id',
-            'email',
-            'first_name',
-            'last_name',
-            'name',
-        ],
-        'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
-        'APP': {
-            # "client_id": FACEBOOK_OAUTH_CLIENT_ID,
-            # "secret": FACEBOOK_OAUTH_CLIENT_SECRET,
+    # 'facebook': {
+    #     'METHOD': 'oauth2',
+    #     'SCOPE': ['email', 'public_profile'],
+    #     'FIELDS': [
+    #         'id',
+    #         'email',
+    #         'first_name',
+    #         'last_name',
+    #         'name',
+    #     ],
+    #     'AUTH_PARAMS': {'auth_type': 'reauthenticate'},
+    #     'APP': {
+    #         # "client_id": FACEBOOK_OAUTH_CLIENT_ID,
+    #         # "secret": FACEBOOK_OAUTH_CLIENT_SECRET,
 
-            'key': '',
-        },
-        'VERIFIED_EMAIL': True,
-        'VERSION': 'v11.0',  # Use the appropriate Facebook Graph API version
-    }
+    #         'key': '',
+    #     },
+    #     'VERIFIED_EMAIL': True,
+    #     'VERSION': 'v11.0',  # Use the appropriate Facebook Graph API version
+    # }
 }
 
 
