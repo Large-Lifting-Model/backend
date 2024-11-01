@@ -13,9 +13,8 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from configparser import ConfigParser
-from dotenv import load_dotenv
 
-load_dotenv("./config/.env")
+
 
 
 config = ConfigParser()
@@ -81,9 +80,9 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'dj_rest_auth',
     'dj_rest_auth.registration',   
-     
 
-
+    # CORS
+    'corsheaders',
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -145,6 +144,7 @@ AUTHENTICATION_BACKENDS = [
 CSRF_USE_SESSIONS = False
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -232,4 +232,11 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Add more settings/installed apps/middleware as needed
+# CORS settings
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Frontend URL mentioned by Tom
+    "http://34.65.243.247",   # Server IP
+    # Add any other allowed origins here
+]
