@@ -18,11 +18,12 @@ EQUIPMENT = [('Full Gym', 'Full Gym'),
 class Workout(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) # null statement needs to be removed, only in for testing purposes
     created = models.DateTimeField('Date Created', auto_now_add=True, blank=False, null=False)
+
+
     '''Fields to be sent to the LLM'''
     # Required fields
-    length = models.IntegerField('Length of Workout (minutes)', default=30)  # Example default
+    length = models.IntegerField('Length of Workout (minutes)', blank=False, null=False)
     difficulty = models.CharField('Difficulty', choices=DIFFICULTIES, max_length=100, blank=False, null=False)
-    
     workout_type = models.CharField('Workout Type', max_length=100, blank=False, null=False)
     target_area = models.CharField('Target Area', choices=TARGET_AREAS, max_length=100, blank=False, null=False)
     equipment_access = models.CharField('Equipment Access', choices=EQUIPMENT, max_length=100, blank=False, null=False)
