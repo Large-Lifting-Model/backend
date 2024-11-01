@@ -37,6 +37,9 @@ DEBUG = config['Django'].getboolean('DEBUG')
 ALLOWED_HOSTS = config['Django']['ALLOWED_HOSTS'].split(',')
 CORS_ALLOW_ALL_ORIGINS = config['Django'].getboolean('CORS_ALLOW_ALL_ORIGINS')
 
+API_KEY = config['LLM']['API_KEY']
+MODEL_VERSION = config['LLM']['MODEL_VERSION']
+
 SITE_ID = 1
 
 # Google OAuth
