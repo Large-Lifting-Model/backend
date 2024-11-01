@@ -15,7 +15,7 @@ class WorkoutSerializer(serializers.ModelSerializer):
             'equipment_access',
             'included_exercises',
             'excluded_exercises',
-            'other_considerations',
+            'other_workout_considerations',
             'llm_suggested_changes',
             'llm_suggested_workout',
             'llm_final_workout',

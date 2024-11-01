@@ -3,7 +3,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 
 '''Workout model parameter choices'''
-DIFFICULTYS = [('Easy', 'Easy'), 
+DIFFICULTIES = [('Easy', 'Easy'), 
                ('Medium', 'Medium'), 
                ('Hard', 'Hard')]
 TARGET_AREAS = [('Chest', 'Chest'), 
@@ -22,14 +22,14 @@ class Workout(models.Model):
     '''Fields to be sent to the LLM'''
     # Required fields
     length = models.IntegerField('Length of Workout (minutes)', blank=False, null=False)
-    difficulty = models.CharField('Difficulty', choices=DIFFICULTYS, max_length=100, blank=False, null=False)
+    difficulty = models.CharField('Difficulty', choices=DIFFICULTIES, max_length=100, blank=False, null=False)
     workout_type = models.CharField('Workout Type', max_length=100, blank=False, null=False)
     target_area = models.CharField('Target Area', choices=TARGET_AREAS, max_length=100, blank=False, null=False)
     equipment_access = models.CharField('Equipment Access', choices=EQUIPMENT, max_length=100, blank=False, null=False)
     # Optional fields
     included_exercises = models.TextField('Included Exercises', blank=True, null=True)
     excluded_exercises = models.TextField('Excluded Exercises', blank=True, null=True)
-    other_considerations = models.TextField('Other Considerations', blank=True, null=True)
+    other_workout_considerations = models.TextField('Other Workout Considerations', blank=True, null=True)
     
     '''LLM generated fields'''
     # Feedback sent to llm for workout revisions, not sent in first interaction with llm
