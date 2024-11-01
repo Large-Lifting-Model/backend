@@ -15,7 +15,6 @@ djangorestframework
 
 # [DEV]
 setuptools==59.6.0
-python-dotenv==1.0.1  # Load environment variables from .env file
 
 
 # [AUTH]
@@ -26,3 +25,8 @@ requests                        # HTTP library needed by django-allauth and soci
 cryptography                    # Required by django-allauth for JWT handling and other cryptographic operationspi
 requests_oauthlib               # Required by django-allauth for OAuth handling 
 
+# [LLM]
+google-generativeai
+
+# [CORS]
+django-cors-headers
