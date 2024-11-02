@@ -16,7 +16,7 @@ EQUIPMENT = [('Full Gym', 'Full Gym'),
              ('No Gym', 'No Gym')]
 
 class Workout(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True) # null statement needs to be removed, only in for testing purposes
     created = models.DateTimeField('Date Created', auto_now_add=True, blank=False, null=False)
 
 
