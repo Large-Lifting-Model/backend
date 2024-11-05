@@ -45,7 +45,7 @@ SITE_ID = 1
 # Google OAuth
 GOOGLE_OAUTH_CLIENT_ID = config['Google']['CLIENT_ID']
 GOOGLE_OAUTH_CLIENT_SECRET = config['Google']['CLIENT_SECRET']
-GOOGLE_OAUTH_CALLBACK_URL = config['Google']['REDIRECT_URI']
+GOOGLE_OAUTH_CALLBACK_URL = config['Google']['REDIRECT_URL']
 
 
 # Application definition
