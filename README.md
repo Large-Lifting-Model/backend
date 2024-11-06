@@ -28,8 +28,8 @@ Please follow this guide to setup your own Django backend server
     - [Postman](https://www.postman.com/) 
     - [Django](https://www.djangoproject.com/)
     - [PostgreSQL](https://www.postgresql.org/)
-    - [Docker] TBD
-    - [GoogleCloud] TBD
+    - [Docker](https://www.docker.com/)
+    - [GoogleCloud](https://cloud.google.com/?hl=en)
 
 
 # Local Environment Setup
@@ -69,7 +69,7 @@ Please follow this guide to setup your own Django backend server
     - config.ini:
         ```ini
         [Django]
-        SECRET_KEY = 
+        SECRET_KEY = key
         DEBUG = True
         ALLOWED_HOSTS = *
         CORS_ALLOW_ALL_ORIGINS = True
@@ -80,6 +80,15 @@ Please follow this guide to setup your own Django backend server
         PORT = 5432
         USER = userdb
         PASSWORD = largeliftingmodel
+
+        [Google]
+        CLIENT_ID = 
+        CLIENT_SECRET = 
+        REDIRECT_URI = http://127.0.0.1
+
+        [LLM]
+        API_KEY = 
+        MODEL_VERSION = gemini-1.5-flash
         ```
 
 
@@ -141,3 +150,5 @@ backend [root]
     > python manage.py migrate
 3. Make sure to git pull and fix any conflicts before committing to your branch, then
     create a pull request and ask someone to review your changes.
+4. Test the endpoints either via postman, or by running:
+    > python manage.py test
