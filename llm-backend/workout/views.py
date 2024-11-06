@@ -63,6 +63,15 @@ class WorkoutView(APIView):
         except Workout.DoesNotExist:
             return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
         
+    '''Delete Workout'''
+    def delete(self, request, id):
+        try:
+            workout = Workout.objects.get(user=request.user, id=id)
+            workout.delete()
+            return Response({"message": "Workout deleted successfully."}, status=status.HTTP_200_OK)
+        except Workout.DoesNotExist:
+            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+        
 
 ''' Used to connect and query llm'''
 class LlmConnection():
