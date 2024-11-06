@@ -7,6 +7,7 @@ from rest_framework import status
 import requests
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ObjectDoesNotExist
+from users.views import IsAccessToken
 
 #For llm prompting
 from backend.settings import API_KEY, MODEL_VERSION
@@ -15,7 +16,7 @@ import google.generativeai as genai
 
 
 class CreateWorkoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccessToken] # Ensures only authenticated users using access token can access this API
 
     '''Create Workout'''
     def post(self, request):
@@ -31,7 +32,7 @@ class CreateWorkoutView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class WorkoutListView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccessToken] # Ensures only authenticated users using access token can access this API
 
     '''View workout history by user'''
     def get(self, request):
@@ -40,7 +41,7 @@ class WorkoutListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class WorkoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccessToken] # Ensures only authenticated users using access token can access this API
 
     '''View workout'''
     def get(self, request, id):
