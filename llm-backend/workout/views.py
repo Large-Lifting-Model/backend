@@ -8,17 +8,16 @@ from rest_framework import status
 import requests
 from rest_framework.permissions import IsAuthenticated
 from django.core.exceptions import ObjectDoesNotExist
-
+from users.views import IsAccessToken
 
 #For llm prompting
 from backend.settings import API_KEY, MODEL_VERSION
-from users.models import HealthData
-from .llm_config import *
+from .prompts import prompt_start, prompt_end
 import google.generativeai as genai
 
 
 class CreateWorkoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccessToken] # Ensures only authenticated users using access token can access this API
 
     '''Create Workout'''
     def post(self, request):
@@ -41,7 +40,7 @@ class CreateWorkoutView(APIView):
     
 
 class WorkoutListView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccessToken] # Ensures only authenticated users using access token can access this API
 
     '''View workout history by user'''
     def get(self, request):
@@ -50,7 +49,7 @@ class WorkoutListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class WorkoutView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsAccessToken] # Ensures only authenticated users using access token can access this API
 
     '''View workout'''
     def get(self, request, id):
@@ -160,5 +159,29 @@ class LlmConnection():
         return prompt
 
 
+
+
+        
+    '''Patch Workout'''
+    def patch(self, request, id):
+        try:
+            workout = Workout.objects.get(user=request.user, id=id)
+            serializer = WorkoutSerializer(workout, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Workout.DoesNotExist:
+            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+    '''Delete Workout'''
+    def delete(self, request, id):
+        try:
+            workout = Workout.objects.get(user=request.user, id=id)
+            workout.delete()
+            return Response({"message": "Workout deleted successfully."}, status=status.HTTP_200_OK)
+        except Workout.DoesNotExist:
+            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+        
 
 

@@ -6,14 +6,6 @@ from django.contrib.auth.models import User
 DIFFICULTIES = [('Easy', 'Easy'), 
                ('Medium', 'Medium'), 
                ('Hard', 'Hard')]
-TARGET_AREAS = [('Chest', 'Chest'), 
-                ('Back', 'Back'), 
-                ('Arms', 'Arms'), 
-                ('Legs', 'Legs'), 
-                ('Core', 'Core')]
-EQUIPMENT = [('Full Gym', 'Full Gym'), 
-             ('Limited Gym', 'Limited Gym'), 
-             ('No Gym', 'No Gym')]
 
 class Workout(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -25,8 +17,8 @@ class Workout(models.Model):
     length = models.IntegerField('Length of Workout (minutes)', blank=False, null=False)
     difficulty = models.CharField('Difficulty', choices=DIFFICULTIES, max_length=100, blank=False, null=False)
     workout_type = models.CharField('Workout Type', max_length=100, blank=False, null=False)
-    target_area = models.CharField('Target Area', choices=TARGET_AREAS, max_length=100, blank=False, null=False)
-    equipment_access = models.CharField('Equipment Access', choices=EQUIPMENT, max_length=100, blank=False, null=False)
+    target_area = models.CharField('Target Area', max_length=100, blank=False, null=False)
+    equipment_access = models.CharField('Equipment Access', max_length=100, blank=False, null=False)
 
     # Optional fields
     included_exercises = models.TextField('Included Exercises', blank=True, null=True)
@@ -44,6 +36,7 @@ class Workout(models.Model):
     '''Feedback fields'''
     workout_rating = models.IntegerField('Workout Rating', choices=[(i, str(i)) for i in range(6)], blank=True, null=True)
     workout_comments = models.TextField('Workout Feedback', blank=True, null=True)
+    actual_length = models.IntegerField('Final Length of Workout (minutes)', blank=True, null=True)
     
 
     def __str__(self):
