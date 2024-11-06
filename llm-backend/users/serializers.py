@@ -28,20 +28,23 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
         fields = ['first_name', 'last_name', 'email', 'health_data']
+        read_only_fields = ['email']  # Make email read only
 
     def update(self, instance, validated_data):
         # Update user fields (first_name, last_name, email)
         user_data = validated_data.pop('user', {})
         first_name = user_data.get('first_name')
         last_name = user_data.get('last_name')
-        email = user_data.get('email')
+
+        # Disable email update for now
+        # email = user_data.get('email')
         
         if first_name:
             instance.user.first_name = first_name
         if last_name:
             instance.user.last_name = last_name
-        if email:
-            instance.user.email = email
+        # if email:
+        #     instance.user.email = email
         instance.user.save()
 
         # Update health data fields

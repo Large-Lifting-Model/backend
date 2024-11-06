@@ -5,7 +5,6 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 urlpatterns = [
 
     # Social authentication
-    # path('auth/social/', include('allauth.socialaccount.urls')),  # Social login/registration
     path('auth/google/', GoogleLoginView.as_view(), name='auth_social_google'),  # Google login
 
     # User profile actions
