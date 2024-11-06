@@ -1,13 +1,7 @@
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
-from allauth.socialaccount.models import SocialAccount
-from allauth.account.utils import perform_login
 
 from dj_rest_auth.registration.views import SocialLoginView
-from dj_rest_auth.registration.views import SocialConnectView
-
-
 
 from django.conf import settings
 from django.shortcuts import render
@@ -16,8 +10,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 import requests
 
-# from django.utils.decorators import method_decorator
-# from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from users.models import User, UserProfile
 from users.serializers import UserProfileSerializer
@@ -25,10 +17,29 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, OutstandingToken
+from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.permissions import BasePermission
+from rest_framework_simplejwt.tokens import AccessToken
+
+class IsAccessToken(BasePermission):
+    """
+    Custom permission to only allow access if the token is an access token.
+    """
+
+    def has_permission(self, request, view):
+        # Extract the token from the request header
+        auth_header = request.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.split(" ")[1]
+            try:
+                # Try to decode it as an access token
+                AccessToken(token)
+                return True
+            except TokenError:
+                raise AuthenticationFailed("Only access tokens are accepted.")
+        raise AuthenticationFailed("Invalid token format or missing Authorization header.")
 
 
-
-# @method_decorator(csrf_exempt, name='dispatch')
 class GoogleLoginView(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     callback_url = settings.GOOGLE_OAUTH_CALLBACK_URL
@@ -92,52 +103,10 @@ class GoogleLoginView(SocialLoginView):
         )
         return response.json()
       
-# class FacebookLoginView(SocialLoginView):
-#     adapter_class = FacebookOAuth2Adapter
-#     callback_url = settings.FACEBOOK_OAUTH_CALLBACK_URL
-#     client_class = OAuth2Client
-
-#     def post(self, request, *args, **kwargs):
-#         access_token = request.data.get("access_token")
-#         if not access_token:
-#             return Response({"error": "Missing access token."}, status=status.HTTP_400_BAD_REQUEST)
-
-#         try:
-#             # Extract user info from Facebook
-#             user_info = self.get_facebook_user_info(access_token)
-#             email = user_info.get('email')
-#             if not email:
-#                 return Response({"error": "Facebook account does not have an email."}, status=status.HTTP_400_BAD_REQUEST)
-
-#             # Check if a user with the same email exists
-#             try:
-#                 user = User.objects.get(email=email)
-
-#                 # Check if the user is already linked to Facebook
-#                 if SocialAccount.objects.filter(user=user, provider='facebook').exists():
-#                     return Response({"error": "User is already registered with this email and linked to Facebook."}, status=status.HTTP_400_BAD_REQUEST)
-
-#                 # If not linked, link the Facebook account to the existing user
-#                 perform_login(request, user, email_verification='none')
-#                 return Response({"detail": "Account linked successfully."}, status=status.HTTP_200_OK)
-
-#             except ObjectDoesNotExist:
-#                 # No existing user, proceed with normal flow (create user)
-#                 return super().post(request, *args, **kwargs)
-
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-#     def get_facebook_user_info(self, access_token):
-#         response = requests.get(
-#             f'https://graph.facebook.com/me?fields=id,email,first_name,last_name&access_token={access_token}'
-#         )
-#         return response.json()
-
 
 
 class UserProfileView(APIView):
-    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can access this API
+    permission_classes = [IsAuthenticated, IsAccessToken] # Ensures only authenticated users using access token can access this API
 
     def get(self, request):
         # Fetch the user's profile
@@ -152,6 +121,7 @@ class UserProfileView(APIView):
         """Update the user's profile and health data."""
         try:
             profile = request.user.profile
+
         except ObjectDoesNotExist:
             return Response({"error": "Profile not found."}, status=status.HTTP_404_NOT_FOUND)
 
@@ -180,7 +150,7 @@ class UserProfileView(APIView):
 
 
 class UserLogoutView(APIView):
-    permission_classes = (IsAuthenticated,)  # Ensure only authenticated users can access this API
+    permission_classes = [IsAuthenticated, IsAccessToken] 
 
     def post(self, request):
         try:
@@ -206,32 +176,6 @@ class UserLogoutView(APIView):
             return Response({"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-# Not needed for now since frontend is handling the callback
-# @method_decorator(csrf_exempt, name='dispatch')
-# class GoogleLoginCallback(APIView):
-#     def get(self, request, *args, **kwargs):
-#         code = request.GET.get("code")
-
-#         if not code:
-#             return Response({"error": "No code provided"}, status=status.HTTP_400_BAD_REQUEST)
-
-#         # Exchange the authorization code for an access token
-#         token_endpoint_url = "https://oauth2.googleapis.com/token"
-#         data = {
-#             "code": code,
-#             "client_id": settings.GOOGLE_OAUTH_CLIENT_ID,
-#             "client_secret": settings.GOOGLE_OAUTH_CLIENT_SECRET,
-#             "redirect_uri": settings.GOOGLE_OAUTH_CALLBACK_URL,
-#             "grant_type": "authorization_code",
-#         }
-
-#         response = requests.post(token_endpoint_url, data=data)
-
-#         if response.status_code != 200:
-#             return Response({"error": "Failed to exchange code for token"}, status=status.HTTP_400_BAD_REQUEST)
-
-#         return Response(response.json(), status=status.HTTP_200_OK)
 
 
 
