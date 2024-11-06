@@ -26,3 +26,14 @@ class WorkoutSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'user', 'created']
     
+
+class ChangeWorkoutSerializer(serializers.ModelSerializer):
+    user = serializers.EmailField(source = 'user.email', read_only = True)
+
+    class Meta:
+        model = Workout
+        fields = ["id",
+                  "user",
+                  "created",
+                  "llm_suggested_changes"
+                 ]       
