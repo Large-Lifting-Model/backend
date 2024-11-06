@@ -23,10 +23,10 @@ class CreateWorkoutView(APIView):
         if serializer.is_valid():
             try:
                 llm = LlmConnection()
-                llm.requestWorkout(serializer)
+                workout = llm.requestWorkout(serializer)
             except:
                 print("[ERROR]: LLM Request Failed")
-            serializer.save(user=request.user)
+            serializer.save(user=request.user, llm_suggested_workout= [workout])
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -63,6 +63,18 @@ class WorkoutView(APIView):
         except Workout.DoesNotExist:
             return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
         
+    '''Patch Workout'''
+    def patch(self, request, id):
+        try:
+            workout = Workout.objects.get(user=request.user, id=id)
+            serializer = WorkoutSerializer(workout, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Workout.DoesNotExist:
+            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+        
     '''Delete Workout'''
     def delete(self, request, id):
         try:
@@ -89,6 +101,7 @@ class LlmConnection():
         print("[INFO]: Connecting to Gemini")
         prompt = self.generatePrompt(serializer.validated_data)
         response = self.model.generate_content(prompt)
+        print(response)
         return response.candidates[0].content.parts[0].text
     
     '''Make changes to the current llm workout'''
