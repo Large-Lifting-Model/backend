@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from workout.models import Workout
-from workout.serializers import WorkoutSerializer, ChangeWorkoutSerializer
+from workout.serializers import WorkoutSerializer
 from .models import Workout
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,8 +12,9 @@ from users.views import IsAccessToken
 
 #For llm prompting
 from backend.settings import API_KEY, MODEL_VERSION
-from .prompts import prompt_start, prompt_end
+from .llm_config import *
 import google.generativeai as genai
+from users.models import HealthData
 
 
 class CreateWorkoutView(APIView):
@@ -65,11 +66,24 @@ class WorkoutView(APIView):
     def put(self, request, id):
         try:
             workout = Workout.objects.get(user=request.user, id=id)
-            serializer = ChangeWorkoutSerializer(workout, data=request.data)
+            serializer = WorkoutSerializer(workout, data=request.data)
             if serializer.is_valid():
-
-                #Extract the change request and workout history and append it to the list of requests
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Workout.DoesNotExist:
+            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+    '''Patch Workout'''
+    def patch(self, request, id):
+        try:
+            workout = Workout.objects.get(user=request.user, id=id)
+            serializer = WorkoutSerializer(workout, data=request.data, partial=True)
+            if serializer.is_valid():
                 workout_obj = Workout.objects.get(id = id)
+                
+                #Extract the change request and workout history and append it to the list of requests
+                print("[INFO]: Changing workout. Generating history")
                 change_history = getattr(workout_obj, "llm_suggested_changes")
                 workout_history = getattr(workout_obj, "llm_suggested_workout")
 
@@ -87,16 +101,25 @@ class WorkoutView(APIView):
                     if hasattr(e, 'code'):
                         print(f"[ERROR CODE]: {e.code}")
                     return Response({"error:" "Workout Generation Failed"}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
-                
+
                 workout_history.append(new_workout)
                 print(workout_history)
+                
                 serializer.save(llm_suggested_changes = change_history, llm_suggested_workout = workout_history)
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
         except Workout.DoesNotExist:
             return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+    '''Delete Workout'''
+    def delete(self, request, id):
+        try:
+            workout = Workout.objects.get(user=request.user, id=id)
+            workout.delete()
+            return Response({"message": "Workout deleted successfully."}, status=status.HTTP_200_OK)
+        except Workout.DoesNotExist:
+            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+        
         
 
 ''' Used to connect and query llm'''
@@ -106,7 +129,6 @@ class LlmConnection():
     model_version = MODEL_VERSION
     model = genai.GenerativeModel(model_version)
     health_obj = HealthData.objects.first()
-    #workout_obj = Workout.objects.latest()
 
     def __init__(self):
         genai.configure(api_key = self.api_key)
@@ -118,13 +140,11 @@ class LlmConnection():
         prompt = self.generatePrompt(serializer.validated_data)
         response = self.model.generate_content(prompt)
         return response.candidates[0].content.parts[0].text
-    
+
     '''Make changes to the current llm workout'''
     def changeWorkout(self, change_history, workout_history):
-        #Test to see if we need the initial response
-        # prompt = [self.generatePrompt(self.workout_obj)]
-        # change_history = prompt.append(change_history)
-
+        #Add sending the workout prompt info as history
+        print("[INFO]: Sending workout history to Gemini")
         chat = self.model.start_chat(
                     history = [
                         {"role": "user", "parts": change_history},
@@ -140,13 +160,6 @@ class LlmConnection():
     def generatePrompt(self, workout_data):
         print("[INFO]: Creating Prompt")
         prompt = prompt_start
-        # for field in Workout._meta.get_fields():
-        #     name = field.name
-        #     print(name)
-        #     val = serial_val_data.get(name)
-        #     prompt += str(name) + ": " + str(val) + "\n"
-
-        # if type(workout_data) is WorkoutSerializer:
         for key in workout_keys:
             val = workout_data.get(key)
             prompt += str(key) + ": " + str(val) + "\n"
@@ -161,27 +174,5 @@ class LlmConnection():
 
 
 
-        
-    '''Patch Workout'''
-    def patch(self, request, id):
-        try:
-            workout = Workout.objects.get(user=request.user, id=id)
-            serializer = WorkoutSerializer(workout, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except Workout.DoesNotExist:
-            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
-        
-    '''Delete Workout'''
-    def delete(self, request, id):
-        try:
-            workout = Workout.objects.get(user=request.user, id=id)
-            workout.delete()
-            return Response({"message": "Workout deleted successfully."}, status=status.HTTP_200_OK)
-        except Workout.DoesNotExist:
-            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
-        
 
 
