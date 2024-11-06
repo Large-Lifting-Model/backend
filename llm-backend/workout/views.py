@@ -81,7 +81,7 @@ class WorkoutView(APIView):
             serializer = WorkoutSerializer(workout, data=request.data, partial=True)
             if serializer.is_valid():
                 workout_obj = Workout.objects.get(id = id)
-                
+
                 #Extract the change request and workout history and append it to the list of requests
                 print("[INFO]: Changing workout. Generating history")
                 change_history = getattr(workout_obj, "llm_suggested_changes")
@@ -159,11 +159,12 @@ class LlmConnection():
     '''Generates llm prompts'''
     def generatePrompt(self, workout_data):
         print("[INFO]: Creating Prompt")
+        #For serializers
         prompt = prompt_start
         for key in workout_keys:
             val = workout_data.get(key)
             prompt += str(key) + ": " + str(val) + "\n"
-        
+        #For objects
         for key in health_keys:
             val = getattr(self.health_obj, key)
             prompt += str(key) + ": " + str(val) + "\n"
