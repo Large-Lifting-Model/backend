@@ -20,6 +20,9 @@ from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, Ou
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import BasePermission
 from rest_framework_simplejwt.tokens import AccessToken
+from backend.settings import SIMPLE_JWT
+
+
 
 class IsAccessToken(BasePermission):
     """
@@ -40,6 +43,7 @@ class IsAccessToken(BasePermission):
         raise AuthenticationFailed("Invalid token format or missing Authorization header.")
 
 
+
 class GoogleLoginView(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     callback_url = settings.GOOGLE_OAUTH_CALLBACK_URL
@@ -51,7 +55,7 @@ class GoogleLoginView(SocialLoginView):
 
         # Get access token from request data
         access_token = request.data.get("access_token")
-
+        expires_in = SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
         # Fetch user data from Google using the access token
         google_user_data = self.get_google_user_info(access_token)
 
@@ -62,13 +66,15 @@ class GoogleLoginView(SocialLoginView):
         try:
             user = User.objects.get(email=email)
             print(f"User {email} found, logging in.")
-
+            
             # Ensure the user has a profile, create one if it doesn't exist
             profile, created = UserProfile.objects.get_or_create(user=user)
-            if created:
-                print(f"Profile created for user {email}")
+            if profile.is_new:
+                profile.is_new = False
+                profile.save()
+                print(f"User {email} is a preexisting account, 'is_new' set to False.")
             else:
-                print(f"Profile already exists for user {email}")
+                print(f"User {email} is not new; 'is_new' remains False.")
 
         except ObjectDoesNotExist:
             # No existing user found, create a new user
@@ -91,7 +97,8 @@ class GoogleLoginView(SocialLoginView):
             'access': str(refresh.access_token),
         }
 
-        return Response({"access": tokens['access'], "refresh": tokens['refresh']}, status=status.HTTP_200_OK)
+
+        return Response({"access": tokens['access'], "refresh": tokens['refresh'],"expires": expires_in}, status=status.HTTP_200_OK)
 
     def get_google_user_info(self, access_token):
         """

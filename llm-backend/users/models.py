@@ -6,7 +6,6 @@ from django.dispatch import receiver
 class HealthData(models.Model):
     # One-to-One relationship with the UserProfile model
     profile = models.OneToOneField('UserProfile', on_delete=models.CASCADE, related_name="health_data")
-
     # Health Information Fields
     dob = models.DateField("Date of Birth", null=True, blank=True)
     gender = models.CharField(
@@ -54,6 +53,7 @@ class HealthData(models.Model):
 class UserProfile(models.Model):
     # One-to-One relationship with the Django User model
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
+    is_new = models.BooleanField(default=True) # Flag to check if user has completed registration
 
     def __str__(self):
         return self.user.username
