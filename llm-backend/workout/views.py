@@ -74,6 +74,7 @@ class WorkoutView(APIView):
         except Workout.DoesNotExist:
             return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
         
+
     '''Patch Workout'''
     def patch(self, request, id):
         try:
@@ -110,7 +111,7 @@ class WorkoutView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Workout.DoesNotExist:
             return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
-        
+
     '''Delete Workout'''
     def delete(self, request, id):
         try:
@@ -119,8 +120,7 @@ class WorkoutView(APIView):
             return Response({"message": "Workout deleted successfully."}, status=status.HTTP_200_OK)
         except Workout.DoesNotExist:
             return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
-        
-        
+
 
 ''' Used to connect and query llm'''
 class LlmConnection():

@@ -20,7 +20,6 @@ from rest_framework_simplejwt.token_blacklist.models import BlacklistedToken, Ou
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import BasePermission
 from rest_framework_simplejwt.tokens import AccessToken
-
 from backend.settings import SIMPLE_JWT
 
 
@@ -42,6 +41,7 @@ class IsAccessToken(BasePermission):
             except TokenError:
                 raise AuthenticationFailed("Only access tokens are accepted.")
         raise AuthenticationFailed("Invalid token format or missing Authorization header.")
+
 
 
 class GoogleLoginView(SocialLoginView):
