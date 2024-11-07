@@ -22,7 +22,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', required=False)
     last_name = serializers.CharField(source='user.last_name', required=False)
     email = serializers.EmailField(source='user.email', required=False)
-    is_new = serializers.BooleanField(read_only=True) 
+    is_new = serializers.BooleanField() 
+
 
     health_data = HealthDataSerializer()
 
@@ -37,6 +38,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         first_name = user_data.get('first_name')
         last_name = user_data.get('last_name')
         is_new = serializers.BooleanField(read_only=True) 
+
 
         # Disable email update for now
         # email = user_data.get('email')
