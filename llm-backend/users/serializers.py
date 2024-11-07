@@ -35,6 +35,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop('user', {})
         first_name = user_data.get('first_name')
         last_name = user_data.get('last_name')
+        is_new = serializers.BooleanField(read_only=True) 
+
 
         # Disable email update for now
         # email = user_data.get('email')
