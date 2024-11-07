@@ -68,13 +68,26 @@ class GoogleLoginView(SocialLoginView):
             print(f"User {email} found, logging in.")
             
             # Ensure the user has a profile, create one if it doesn't exist
+            # Ensure the user has a profile, create one if it doesn't exist
             profile, created = UserProfile.objects.get_or_create(user=user)
-            if profile.is_new:
-                profile.is_new = False
-                profile.save()
-                print(f"User {email} is a preexisting account, 'is_new' set to False.")
+            health_data = profile.health_data
+
+            # Check if any key fields in health_data are populated
+            if health_data and all([
+                health_data.dob, 
+                health_data.gender, 
+                health_data.height, 
+                health_data.weight, 
+                health_data.favourite_workout_type, 
+                health_data.workout_experience
+            ]):
+                # If all essential health data fields are populated, set is_new to False
+                if profile.is_new:
+                    profile.is_new = False
+                    profile.save()
+                    print(f"User {email} is has been registered; 'is_new' set to False.")
             else:
-                print(f"User {email} is not new; 'is_new' remains False.")
+                print(f"User {email} is marked as new; health data is incomplete.")
 
         except ObjectDoesNotExist:
             # No existing user found, create a new user
