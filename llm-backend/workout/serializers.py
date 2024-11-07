@@ -20,7 +20,6 @@ class WorkoutSerializer(serializers.ModelSerializer):
             'other_workout_considerations',
             'llm_suggested_changes',
             'llm_suggested_workout',
-            'llm_final_workout',
             'workout_rating',
             'workout_comments'
         ]
