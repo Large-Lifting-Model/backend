@@ -81,7 +81,7 @@ class WorkoutView(APIView):
             workout = Workout.objects.get(user=request.user, id=id)
             serializer = WorkoutSerializer(workout, data=request.data, partial=True)
             if serializer.is_valid():
-                # Only contacts the llm if making suggested changes
+                # Only contacts the llm if sending suggested changes
                 if "llm_suggested_changes" in request.data:
                     #Extract the change request and workout history and append it to the list of requests
                     print("[INFO]: Changing workout. Generating history")
