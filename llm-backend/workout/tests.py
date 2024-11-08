@@ -127,8 +127,26 @@ class WorkoutViewTest(APITestCase):
         self.assertEqual(response.data['target_area'], 'Legs')
         self.assertEqual(response.data['equipment_access'], 'No Gym')
     
+    def test_patch_workout_llm_call(self):
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
+        url = reverse('specific-workout')
+        data = {
+            'llm_suggested_changes': 'Add dips'
+        }
+        response = self.client.patch(url, data, format='json')
+
+        # Assert workout patch update is successful, and makes a call to the llm when llm_suggested_changes is modified
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['llm_suggested_changes'], 'Add dips')
+        # how to assert that the llm list is appended
+
     def test_patch_workout(self):
-        return
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
+        url = reverse('specific-workout')
+        data = {
+            'workout_rating': 4
+        }
+        response = self.client.patch(url, data, format='json')
     
     def test_delete_workout(self):
         return
