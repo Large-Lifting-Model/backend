@@ -149,4 +149,11 @@ class WorkoutViewTest(APITestCase):
         response = self.client.patch(url, data, format='json')
     
     def test_delete_workout(self):
-        return
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
+        url = reverse('specific-workout')
+        response = self.client.delete(url)
+
+        # Assert deletion is successful
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        # self.assertFalse(User.objects.filter(id=self.user.id).exists())
+        # Alter for workout
