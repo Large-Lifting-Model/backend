@@ -122,6 +122,53 @@ class WorkoutView(APIView):
         
         
 
+    '''Patch Workout'''
+    def patch(self, request, id):
+        try:
+            workout = Workout.objects.get(user=request.user, id=id)
+            serializer = WorkoutSerializer(workout, data=request.data, partial=True)
+            if serializer.is_valid():
+                workout_obj = Workout.objects.get(id = id)
+
+                #Extract the change request and workout history and append it to the list of requests
+                print("[INFO]: Changing workout. Generating history")
+                change_history = getattr(workout_obj, "llm_suggested_changes")
+                workout_history = getattr(workout_obj, "llm_suggested_workout")
+
+                if change_history == []:
+                    change_history = serializer.validated_data.get("llm_suggested_changes")
+                else:
+                    change_history.extend(serializer.validated_data.get("llm_suggested_changes"))
+
+                try:
+                    llm = LlmConnection()
+                    new_workout = llm.changeWorkout(change_history, workout_history)
+
+                except Exception as e:
+                    print(f"[ERROR]:{str(e)}" )
+                    if hasattr(e, 'code'):
+                        print(f"[ERROR CODE]: {e.code}")
+                    return Response({"error:" "Workout Generation Failed"}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                workout_history.append(new_workout)
+                print(workout_history)
+                
+                serializer.save(llm_suggested_changes = change_history, llm_suggested_workout = workout_history)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Workout.DoesNotExist:
+            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    '''Delete Workout'''
+    def delete(self, request, id):
+        try:
+            workout = Workout.objects.get(user=request.user, id=id)
+            workout.delete()
+            return Response({"message": "Workout deleted successfully."}, status=status.HTTP_200_OK)
+        except Workout.DoesNotExist:
+            return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
 ''' Used to connect and query llm'''
 class LlmConnection():
 

@@ -14,7 +14,7 @@ class HealthDataSerializer(serializers.ModelSerializer):
             'workout_experience', 
             'fitness_goal', 
             'injuries', 
-            'other_considerations'
+            'other_considerations',
         ]
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -22,12 +22,14 @@ class UserProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', required=False)
     last_name = serializers.CharField(source='user.last_name', required=False)
     email = serializers.EmailField(source='user.email', required=False)
-    
+    is_new = serializers.BooleanField() 
+
+
     health_data = HealthDataSerializer()
 
     class Meta:
         model = UserProfile
-        fields = ['first_name', 'last_name', 'email', 'health_data']
+        fields = ['first_name', 'last_name', 'email', 'is_new', 'health_data']
         read_only_fields = ['email']  # Make email read only
 
     def update(self, instance, validated_data):
@@ -35,6 +37,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
         user_data = validated_data.pop('user', {})
         first_name = user_data.get('first_name')
         last_name = user_data.get('last_name')
+        is_new = serializers.BooleanField(read_only=True) 
 
         # Disable email update for now
         # email = user_data.get('email')
