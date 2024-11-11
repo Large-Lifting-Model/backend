@@ -126,7 +126,7 @@ class WorkoutView(APIView):
 class WorkoutRecommendation(APIView):
     permission_classes = [IsAuthenticated, IsAccessToken]
     workout_history_max = 3
-    no_history_msg = 'Create a workout to get started!'
+    no_history_msg = '{"recommendation": "Try creating a workout to get started!", "parameters": ["length":"", "workout_type":"", "target_area":""]}'
 
     def reduceWorkoutHistory(self, workout_count):
         return workout_count if workout_count < self.workout_history_max else self.workout_history_max
