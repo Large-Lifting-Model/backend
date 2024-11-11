@@ -46,7 +46,6 @@ class Recommendation(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField('Date Created', auto_now_add=True, blank=False, null=False)
     recommendation = models.TextField('Daily Recommendation', blank = True, null = False)
-    # recommendation_params = models.TextField('Recommendation Params', blank = True, null = False)
 
     
 

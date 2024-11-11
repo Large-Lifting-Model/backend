@@ -36,5 +36,4 @@ class RecommendationSerializer(serializers.ModelSerializer):
             'user',
             'created',
             'recommendation'
-            # 'recommendation_params'
         ]
