@@ -30,8 +30,6 @@ class Workout(models.Model):
     llm_suggested_changes = ArrayField(models.TextField(), default=list, blank=True, null=True)
     # LLM generated workouts that have not been accepted by the user
     llm_suggested_workout = ArrayField(models.TextField(), default=list, blank=True, null=True)
-    # LLM generated workout accepted by the user
-    llm_final_workout = models.TextField('LLM Generated Workout', blank=True, null=True)
     
     '''Feedback fields'''
     workout_rating = models.IntegerField('Workout Rating', choices=[(i, str(i)) for i in range(6)], blank=True, null=True)

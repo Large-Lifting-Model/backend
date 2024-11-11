@@ -128,32 +128,31 @@ class WorkoutView(APIView):
             workout = Workout.objects.get(user=request.user, id=id)
             serializer = WorkoutSerializer(workout, data=request.data, partial=True)
             if serializer.is_valid():
-                workout_obj = Workout.objects.get(id = id)
+                # Only contacts the llm if sending suggested changes
+                if "llm_suggested_changes" in request.data:
+                    #Extract the change request and workout history and append it to the list of requests
+                    print("[INFO]: Changing workout. Generating history")
+                    change_history = getattr(workout, "llm_suggested_changes")
+                    workout_history = getattr(workout, "llm_suggested_workout")
 
-                #Extract the change request and workout history and append it to the list of requests
-                print("[INFO]: Changing workout. Generating history")
-                change_history = getattr(workout_obj, "llm_suggested_changes")
-                workout_history = getattr(workout_obj, "llm_suggested_workout")
+                    if change_history == []:
+                        change_history = serializer.validated_data.get("llm_suggested_changes")
+                    else:
+                        change_history.extend(serializer.validated_data.get("llm_suggested_changes"))
 
-                if change_history == []:
-                    change_history = serializer.validated_data.get("llm_suggested_changes")
-                else:
-                    change_history.extend(serializer.validated_data.get("llm_suggested_changes"))
+                    try:
+                        llm = LlmConnection()
+                        new_workout = llm.changeWorkout(change_history, workout_history)
 
-                try:
-                    llm = LlmConnection()
-                    new_workout = llm.changeWorkout(change_history, workout_history)
+                    except Exception as e:
+                        print(f"[ERROR]:{str(e)}" )
+                        if hasattr(e, 'code'):
+                            print(f"[ERROR CODE]: {e.code}")
+                        return Response({"error:" "Workout Generation Failed"}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-                except Exception as e:
-                    print(f"[ERROR]:{str(e)}" )
-                    if hasattr(e, 'code'):
-                        print(f"[ERROR CODE]: {e.code}")
-                    return Response({"error:" "Workout Generation Failed"}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-                workout_history.append(new_workout)
-                print(workout_history)
-                
-                serializer.save(llm_suggested_changes = change_history, llm_suggested_workout = workout_history)
+                    workout_history.append(new_workout)
+                    serializer.save(llm_suggested_changes = change_history, llm_suggested_workout = workout_history)
+                serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Workout.DoesNotExist:
@@ -199,7 +198,6 @@ class LlmConnection():
                     ]
         ) 
         response = chat.send_message(prompt_end)
-        print(response)
         return response.candidates[0].content.parts[0].text
 
     
