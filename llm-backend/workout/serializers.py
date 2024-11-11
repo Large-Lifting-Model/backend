@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from workout.models import Workout
+from workout.models import Workout, Recommendation
 
 class WorkoutSerializer(serializers.ModelSerializer):
     user = serializers.EmailField(source='user.email', read_only=True)
@@ -26,3 +26,15 @@ class WorkoutSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['id', 'user', 'created']
     
+class RecommendationSerializer(serializers.ModelSerializer):
+    user = serializers.EmailField(source='user.email', read_only=True)
+
+    class Meta:
+        model = Recommendation
+        fields = [
+            'id', 
+            'user',
+            'created',
+            'recommendation'
+            # 'recommendation_params'
+        ]

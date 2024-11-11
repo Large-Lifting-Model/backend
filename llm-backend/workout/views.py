@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from workout.models import Workout
-from workout.serializers import WorkoutSerializer
+from workout.models import Workout, Recommendation
+from workout.serializers import WorkoutSerializer, RecommendationSerializer
 from .models import Workout
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,6 +15,8 @@ from backend.settings import API_KEY, MODEL_VERSION
 from .llm_config import *
 import google.generativeai as genai
 from users.models import HealthData
+from datetime import *
+from django.utils import timezone
 
 
 class CreateWorkoutView(APIView):
@@ -120,7 +122,53 @@ class WorkoutView(APIView):
         except Workout.DoesNotExist:
             return Response({"error": "Workout not found."}, status=status.HTTP_404_NOT_FOUND)
         
-        
+
+class WorkoutRecommendation(APIView):
+    permission_classes = [IsAuthenticated, IsAccessToken]
+    workout_history_max = 3
+    no_history_msg = 'Create a workout to get started!'
+
+    def reduceWorkoutHistory(self, workout_count):
+        return workout_count if workout_count < self.workout_history_max else self.workout_history_max
+
+    def get(self, request):
+
+        #Search for recos from today
+        try:
+            recommendation = Recommendation.objects.get(user=request.user, created__date = timezone.now())
+            serializer = RecommendationSerializer(recommendation)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        #If not reco for today, create one
+        except Recommendation.DoesNotExist:
+            workout_count = Workout.objects.filter(user = request.user).count()
+            num_workouts = self.reduceWorkoutHistory(workout_count)
+
+            if num_workouts == 0:
+                return Response(RecommendationSerializer(Recommendation(recommendation = self.no_history_msg)).data, status=status.HTTP_200_OK)
+
+            #Request a new recommendation for the last N workouts
+            else:
+                last_n_workouts = Workout.objects.filter(user=request.user).order_by('-id')[:num_workouts]
+                final_suggested_workout = []
+                for workout_n in last_n_workouts:
+                    suggested_list = getattr(workout_n, 'llm_suggested_workout')
+                    final_suggested_workout.append(suggested_list[-1])
+                
+                try:
+                    llm = LlmConnection()
+                    response = llm.generateRecommendation(final_suggested_workout)
+              
+                except Exception as e:
+                    print(f"[ERROR]:{str(e)}" )
+                    if hasattr(e, 'code'):
+                        print(f"[ERROR CODE]: {e.code}")
+                    return Response({"error:" "Recommendation Generation Failed"}, status = status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+                recommendation = Recommendation.objects.create(user = request.user, recommendation = response)
+                return Response(RecommendationSerializer(recommendation).data, status = status.HTTP_200_OK)
+
+
 
 ''' Used to connect and query llm'''
 class LlmConnection():
@@ -155,7 +203,6 @@ class LlmConnection():
         print(response)
         return response.candidates[0].content.parts[0].text
 
-    
     '''Generates llm prompts'''
     def generatePrompt(self, workout_data):
         print("[INFO]: Creating Prompt")
@@ -171,6 +218,15 @@ class LlmConnection():
 
         prompt += prompt_end
         return prompt
+    
+    def generateRecommendation(self, workout_list):
+        print("[INFO]: Creating Recommendation")
+        prompt = reco_start + str(workout_list) + '\n' + reco_end
+        response = self.model.generate_content(prompt)
+        return response.candidates[0].content.parts[0].text
+
+
+
 
 
 
