@@ -20,9 +20,9 @@ class WorkoutSerializer(serializers.ModelSerializer):
             'other_workout_considerations',
             'llm_suggested_changes',
             'llm_suggested_workout',
-            'llm_final_workout',
             'workout_rating',
-            'workout_comments'
+            'workout_comments',
+            'actual_length'
         ]
         read_only_fields = ['id', 'user', 'created']
     
