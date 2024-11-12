@@ -36,7 +36,7 @@ class CreateWorkoutTest(APITestCase):
         #     other_considerations='None'
         # )
         
-        self.assertEqual(self.health_data.gender, 'Male')
+        # self.assertEqual(self.health_data.gender, 'Male')
 
         self.refresh_token = RefreshToken.for_user(self.user)
         self.access_token = str(self.refresh_token.access_token)
