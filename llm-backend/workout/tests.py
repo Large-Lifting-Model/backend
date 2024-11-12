@@ -23,35 +23,20 @@ class CreateWorkoutTest(APITestCase):
             last_name='User'
         )
 
-        self.user_profile = self.user.profile  # UserProfile automatically created via signal
-        self.health_data = self.user_profile.health_data  # Get the associated HealthData
-
-        # Step 3: Use the UserProfileSerializer to update the health data
-        # Prepare the data to update UserProfile and HealthData
-        profile_data = {
-            'first_name': 'UpdatedFirst',
-            'last_name': 'UpdatedLast',
-            'email': 'updatedemail@example.com',
-            'is_new': True,
-            'health_data': {
-                'dob': '1992-01-01',
-                'gender': 'Male',
-                'height': 1.80,
-                'weight': 80,
-                'favourite_workout_type': 'Cardio',
-                'workout_experience': 'Beginner',
-                'fitness_goal': 'Lose weight',
-                'injuries': 'None',
-                'other_considerations': 'None'
-            }
-        }
-
-        # Use the serializer to update the user profile with health data
-        serializer = UserProfileSerializer(self.user_profile, data=profile_data)
-        if serializer.is_valid():
-            serializer.save()  # Save the updated profile and health data
-        else:
-            raise ValueError("UserProfileSerializer failed validation: " + str(serializer.errors))
+        # self.health_data = HealthData.objects.update(
+        #     profile_id=self.user.pk,  # Link health data to the profile
+        #     dob='1990-01-01',
+        #     gender='Male',
+        #     height=1.75,
+        #     weight=75,
+        #     favourite_workout_type='Cardio',
+        #     workout_experience='Intermediate',
+        #     fitness_goal='Build muscle',
+        #     injuries='None',
+        #     other_considerations='None'
+        # )
+        
+        self.assertEqual(self.health_data.gender, 'Male')
 
         self.refresh_token = RefreshToken.for_user(self.user)
         self.access_token = str(self.refresh_token.access_token)
