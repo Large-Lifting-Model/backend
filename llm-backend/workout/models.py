@@ -39,3 +39,11 @@ class Workout(models.Model):
 
     def __str__(self):
         return f"Workout {self.id} by {self.user.username} on {self.created.strftime('%Y-%m-%d %H:%M')}"
+    
+class Recommendation(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created = models.DateTimeField('Date Created', auto_now_add=True, blank=False, null=False)
+    recommendation = models.TextField('Daily Recommendation', blank = True, null = False)
+
+    
+
