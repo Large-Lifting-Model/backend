@@ -43,7 +43,6 @@ class IsAccessToken(BasePermission):
         raise AuthenticationFailed("Invalid token format or missing Authorization header.")
 
 
-
 class GoogleLoginView(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
     callback_url = settings.GOOGLE_OAUTH_CALLBACK_URL
