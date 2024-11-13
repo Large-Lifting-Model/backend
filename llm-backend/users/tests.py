@@ -5,25 +5,81 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
 from unittest.mock import Mock, patch
 from users.models import UserProfile
+from rest_framework.response import Response
 
 
 
 User = get_user_model()
 
 class UserGoogleLoginTests(APITestCase):
-    def setUp(self):
+    @patch('users.views.GoogleLoginView.get_google_user_info')
+    @patch('dj_rest_auth.registration.views.SocialLoginView.post')
+    def test_google_login_new_user(self, mock_super_post, mock_get_google_user_info):
         # Mock the response from the Google API
-        self.mock_response = {
-            'email': '',
+        mock_get_google_user_info.return_value = {
+            'email': 'testuser@example.com',
             'given_name': 'Test',
             'family_name': 'User'
         }
-        self.mock_google_auth = Mock()
-        self.mock_google_auth.side_effect = [self.mock_response]
-        self.mock_google_auth_patcher = patch('users.views.GoogleLoginView.google_auth', self.mock_google_auth)
-        self.mock_google_auth_patcher.start()
-        
-        # Need to create a test user and retrieve tokens, did not make it as it is too difficult to mock the google auth process
+
+        # Simulate the response from super().post()
+        mock_super_post.return_value = Response(status=status.HTTP_200_OK)
+
+        # Now make a request to the Google login endpoint
+        url = reverse('auth_social_google')
+        data = {'access_token': 'fake-access-token'}
+        response = self.client.post(url, data, format='json')
+
+        # Assert that the response is successful
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check that the user was created
+        user = User.objects.get(email='testuser@example.com')
+        self.assertIsNotNone(user)
+        self.assertEqual(user.first_name, 'Test')
+        self.assertEqual(user.last_name, 'User')
+
+        # Check that tokens are returned in the response
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
+
+    @patch('users.views.GoogleLoginView.get_google_user_info')
+    @patch('dj_rest_auth.registration.views.SocialLoginView.post')
+    def test_google_login_existing_user(self, mock_super_post, mock_get_google_user_info):
+        # Create a user that already exists
+        existing_user = User.objects.create_user(
+            username='testuser',
+            email='testuser@example.com',
+            first_name='Existing',
+            last_name='User'
+        )
+
+        # Mock the response from the Google API
+        mock_get_google_user_info.return_value = {
+            'email': 'testuser@example.com',
+            'given_name': 'Existing',
+            'family_name': 'User'
+        }
+
+        # Simulate the response from super().post()
+        mock_super_post.return_value = Response(status=status.HTTP_200_OK)
+
+        # Now make a request to the Google login endpoint
+        url = reverse('auth_social_google')
+        data = {'access_token': 'fake-access-token'}
+        response = self.client.post(url, data, format='json')
+
+        # Assert that the response is successful
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check that the user still exists and was not duplicated
+        user_count = User.objects.filter(email='testuser@example.com').count()
+        self.assertEqual(user_count, 1)
+
+        # Check that tokens are returned in the response
+        self.assertIn('access', response.data)
+        self.assertIn('refresh', response.data)
+
 
 class UserProfileTests(APITestCase):
     def setUp(self):
