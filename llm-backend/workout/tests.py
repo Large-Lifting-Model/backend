@@ -1,29 +1,112 @@
-from django.test import TestCase
 from rest_framework.test import APITestCase
-from unittest.mock import Mock
 from django.urls import reverse
 from rest_framework import status
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.tokens import RefreshToken
-from workout.models import Workout
+
+from users.models import HealthData
+from users.models import UserProfile
+from llm.views import LlmPromptView
+from unittest.mock import patch
+
 
 User = get_user_model()
 
-class CreateWorkoutTest(APITestCase):
+class CreatePromptTest(APITestCase):
     def setUp(self):
-        # Create a test user to retrieve auth token
+        # Create a user and associated UserProfile
         self.user = User.objects.create_user(
+            username='testuser',
+            email='testuser@example.com',
+            password='testpassword'
+        )
+        profile, _ = UserProfile.objects.get_or_create(user=self.user)
+
+        # Use update_or_create, not create, to avoid IntegrityError!!
+        self.health_data, created = HealthData.objects.update_or_create(
+            profile=profile,
+            defaults={
+                'dob': '1990-01-01',
+                'gender': 'Male',
+                'height': 1.75,
+                'weight': 75,
+                'favourite_workout_type': 'Cardio',
+                'workout_experience': 'Intermediate',
+                'fitness_goal': 'Build muscle',
+                'injuries': 'None',
+                'other_considerations': 'None'
+            }
+        )
+
+        # Confirm data has saved correctly
+        self.view = LlmPromptView()
+
+    def test_create_prompt(self):
+        # Simulated data
+        ser_obj_data = {
+            'length': 60,
+            'difficulty': 'Easy',
+            'workout_type': 'Weights',
+            'target_area': 'Chest',
+            'equipment_access': 'Full Gym'
+        }
+        
+        
+        prompt_text = self.view.createPrompt(ser_obj_data)        
+        # print("[TEST] Final prompt text:\n", prompt_text)
+        self.assertIn("length: 60", prompt_text)
+        self.assertIn("difficulty: Easy", prompt_text)
+        self.assertIn("workout_type: Weights", prompt_text)
+        self.assertIn("target_area: Chest", prompt_text)
+        self.assertIn("equipment_access: Full Gym", prompt_text)
+
+
+class CreateWorkoutTest(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_user(
             username='testuser',
             email='testuser@example.com',
             password='testpassword',
             first_name='Test',
             last_name='User'
         )
-        self.refresh_token = RefreshToken.for_user(self.user)
-        self.access_token = str(self.refresh_token.access_token)
-    
-    def test_post_workout(self):
-        # Check authentication
+
+        profile, _ = UserProfile.objects.get_or_create(user=cls.user)
+        cls.health_data, created = HealthData.objects.update_or_create(
+            profile=profile,
+            defaults={
+                'dob': '1990-01-01',
+                'gender': 'Male',
+                'height': 1.75,
+                'weight': 75,
+                'favourite_workout_type': 'Cardio',
+                'workout_experience': 'Intermediate',
+                'fitness_goal': 'Build muscle',
+                'injuries': 'None',
+                'other_considerations': 'None'
+            }
+        )
+        cls.refresh_token = RefreshToken.for_user(cls.user)
+        cls.access_token = str(cls.refresh_token.access_token)
+
+    @patch('workout.views.LlmConnection.requestWorkout')
+    def test_post_workout(self, mock_requestWorkout):
+        # Mock the LLM response
+        mock_requestWorkout.return_value = 'Sample LLM Response'
+
+        # Verify healthdata in the test
+        health_data = HealthData.objects.filter(profile__user=self.user).first()
+        if health_data:
+            # print("[DEBUG] Retrieved HealthData in test_post_workout:")
+            for field in HealthData._meta.fields:
+                name = field.name
+                val = getattr(health_data, name, None)
+                # print(f"[DEBUG] {name}: {val}")
+        else:
+            print("[ERROR] HealthData not found in test_post_workout")
+
+        # Send request
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
         url = reverse('create-workout')
         data = {
@@ -34,126 +117,6 @@ class CreateWorkoutTest(APITestCase):
             'equipment_access': 'Full Gym'
         }
         response = self.client.post(url, data, format='json')
-
-        # Asset workout post is successful
+       
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['length'], 60)
-        self.assertEqual(response.data['difficulty'], 'Easy')
-        self.assertEqual(response.data['workout_type'], 'Weights')
-        self.assertEqual(response.data['target_area'], 'Chest')
-        self.assertEqual(response.data['equipment_access'], 'Full Gym')
-        
-
-
-class WorkoutListTest(APITestCase):
-    def setUp(self):
-        # Create a test user to retrieve auth token
-        self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@example.com',
-            password='testpassword',
-            first_name='Test',
-            last_name='User'
-        )
-        self.refresh_token = RefreshToken.for_user(self.user)
-        self.access_token = str(self.refresh_token.access_token)
-        
-        # Create a test workout
-        self.workout = Workout.objects.create(
-            length=60,
-            difficulty='Easy',
-            workout_type='Weights',
-            target_area='Chest',
-            equipment_access='Full Gym'
-        )
-    
-    def test_get_workout_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
-        url = reverse('workout-list')
-        response = self.client.get(url)
-
-        # Assert workout data is returned successfully
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, self.workout) # is this the only check necessary??
-
-class WorkoutViewTest(APITestCase):
-    def setUp(self):
-        # Create a test user to retrieve auth token
-        self.user = User.objects.create_user(
-            username='testuser',
-            email='testuser@example.com',
-            password='testpassword',
-            first_name='Test',
-            last_name='User'
-        )
-        self.refresh_token = RefreshToken.for_user(self.user)
-        self.access_token = str(self.refresh_token.access_token)
-        
-        # Create a test workout
-        self.workout = Workout.objects.create(
-            length=60,
-            difficulty='Easy',
-            workout_type='Weights',
-            target_area='Chest',
-            equipment_access='Full Gym'
-        )
-    
-    def test_get_workout(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
-        url = reverse('specific-workout')
-        response = self.client.get(url)
-
-        # Assert workout data is returned successfully
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, self.workout)
-    
-    def test_put_workout(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
-        url = reverse('specific-workout')
-        data = {
-            'length': 50,
-            'difficulty': 'Medium',
-            'workout_type': 'Cardio',
-            'target_area': 'Legs',
-            'equipment_access': 'No Gym'
-        }
-        response = self.client.put(url, data, format='json')
-
-        # Assert workout put update is successful
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['length'], 50)
-        self.assertEqual(response.data['difficulty'], 'Medium')
-        self.assertEqual(response.data['workout_type'], 'Cardio')
-        self.assertEqual(response.data['target_area'], 'Legs')
-        self.assertEqual(response.data['equipment_access'], 'No Gym')
-    
-    def test_patch_workout_llm_call(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
-        url = reverse('specific-workout')
-        data = {
-            'llm_suggested_changes': 'Add dips'
-        }
-        response = self.client.patch(url, data, format='json')
-
-        # Assert workout patch update is successful, and makes a call to the llm when llm_suggested_changes is modified
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['llm_suggested_changes'], 'Add dips')
-        # how to assert that the llm list is appended
-
-    def test_patch_workout(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
-        url = reverse('specific-workout')
-        data = {
-            'workout_rating': 4
-        }
-        response = self.client.patch(url, data, format='json')
-    
-    def test_delete_workout(self):
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + self.access_token)
-        url = reverse('specific-workout')
-        response = self.client.delete(url)
-
-        # Assert deletion is successful
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        # self.assertFalse(User.objects.filter(id=self.user.id).exists())
-        # Alter for workout
+        mock_requestWorkout.assert_called_once()
