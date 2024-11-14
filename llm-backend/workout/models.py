@@ -14,13 +14,13 @@ class Workout(models.Model):
 
     '''Fields to be sent to the LLM'''
     # Required fields
-    length = models.IntegerField('Length of Workout (minutes)', blank=False, null=False)
     difficulty = models.CharField('Difficulty', choices=DIFFICULTIES, max_length=100, blank=False, null=False)
     workout_type = models.CharField('Workout Type', max_length=100, blank=False, null=False)
-    target_area = models.CharField('Target Area', max_length=100, blank=False, null=False)
     equipment_access = models.CharField('Equipment Access', max_length=100, blank=False, null=False)
 
     # Optional fields
+    target_area = models.CharField('Target Area', max_length=100, blank=True, null=True)
+    length = models.IntegerField('Length of Workout (minutes)', blank=True, null=True)
     included_exercises = models.TextField('Included Exercises', blank=True, null=True)
     excluded_exercises = models.TextField('Excluded Exercises', blank=True, null=True)
     other_workout_considerations = models.TextField('Other Workout Considerations', blank=True, null=True)
