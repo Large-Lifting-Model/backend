@@ -9,9 +9,7 @@ prompt_history = "For context here are the last three workouts the user has done
 reco_start = "Based on the workouts (in json format) that follow, generate a different workout that the user should do today.\n"
 
 reco_end =  """Return your response in the following json format where "recommendation" is a sassy one sentence outline of what workout a user should do today and the "parameters" are a list of parameters relevant to that workout.\n"\n
-Format: {"recommendation": "", "parameters": {"length":"", "workout_type":"", "target_area":""}}
-
-
+Format: {"recommendation": "", "parameters": {"length":"", "workout_type":"", "target_area":""}}. Length is an integer representing the length of the workout in minutes.
  """
 
 
