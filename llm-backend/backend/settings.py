@@ -85,6 +85,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'sslserver',
+
     "django_extensions",
 ]
 
