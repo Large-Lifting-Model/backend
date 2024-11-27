@@ -23,7 +23,7 @@ class HealthData(models.Model):
         "Favourite Workout Type",
         max_length=50,
         choices=[
-            ("Weights", "Weights"),
+            ("Resistance Training", "Resistance Training"),
             ("Cardio", "Cardio"),
             ("Circuits", "Circuits"),
             ("Crossfit", "Crossfit"),

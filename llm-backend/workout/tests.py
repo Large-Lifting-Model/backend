@@ -46,7 +46,7 @@ class CreatePromptTest(APITestCase):
         ser_obj_data = {
             'length': 60,
             'difficulty': 'Easy',
-            'workout_type': 'Weights',
+            'workout_type': 'Resistance Training',
             'target_area': 'Chest',
             'equipment_access': 'Full Gym'
         }
@@ -56,7 +56,7 @@ class CreatePromptTest(APITestCase):
         # print("[TEST] Final prompt text:\n", prompt_text)
         self.assertIn("length: 60", prompt_text)
         self.assertIn("difficulty: Easy", prompt_text)
-        self.assertIn("workout_type: Weights", prompt_text)
+        self.assertIn("workout_type: Resistance Training", prompt_text)
         self.assertIn("target_area: Chest", prompt_text)
         self.assertIn("equipment_access: Full Gym", prompt_text)
 
@@ -112,7 +112,7 @@ class CreateWorkoutTest(APITestCase):
         data = {
             'length': 60,
             'difficulty': 'Easy',
-            'workout_type': 'Weights',
+            'workout_type': 'Resistance Training',
             'target_area': 'Chest',
             'equipment_access': 'Full Gym'
         }
