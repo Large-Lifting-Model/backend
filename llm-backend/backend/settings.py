@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     # Project apps
     'workout',
     'users',
-    'llm',
 
     # Default apps
     'django.contrib.admin',
